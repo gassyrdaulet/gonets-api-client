@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>kz.gonets</groupId>
+  <artifactId>gonets</artifactId>
+  <version>1.0.1</version>
+  <packaging>jar</packaging>
+  <name>GoNets</name>
+  <description>GoNets: клиент HTTP-запросов</description>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <javafx.version>21.0.6</javafx.version>
+    <!-- Папка приложения: gonets.jar и lib/ со всеми зависимостями (jar-файлы не перепаковываются: у Калкан своя подпись) -->
+    <app.dir>${project.build.directory}/app</app.dir>
+    <main.class>kz.gonets.Launcher</main.class>
+    <!-- модули встроенной Java для портативной сборки и установщика (см. профили ниже) -->
+    <jlink.modules>java.base,java.desktop,java.naming,java.net.http,java.security.jgss,java.smartcardio,java.sql,java.xml.crypto,jdk.unsupported</jlink.modules>
+    <jlink.options>--strip-debug --no-man-pages --no-header-files --strip-native-commands --compress=zip-9</jlink.options>
+  </properties>
+
+  <dependencies>
+    <!-- Транспортная подпись.
+         Калкан (НУЦ РК) в Maven Central нет: установите его в ~/.m2 через mvn install:install-file (см. README). -->
+    <dependency>
+      <groupId>org.apache.ws.security</groupId>
+      <artifactId>wss4j</artifactId>
+      <version>1.6.19</version>
+      <exclusions>
+        <exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.santuario</groupId>
+      <artifactId>xmlsec</artifactId>
+      <version>1.5.8</version>
+      <exclusions>
+        <exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>kz.gov.pki.kalkan</groupId>
+      <artifactId>kalkancrypt</artifactId>
+      <version>0.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>kz.gov.pki.kalkan</groupId>
+      <artifactId>kalkancrypt-xmldsig</artifactId>
+      <version>0.4</version>
+    </dependency>
+
+    <!-- Интерфейс -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fxmisc.richtext</groupId>
+      <artifactId>richtextfx</artifactId>
+      <version>0.11.5</version>
+    </dependency>
+
+    <!-- data.json -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.18.1</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>gonets</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <outputDirectory>${app.dir}</outputDirectory>
+          <archive>
+            <manifest>
+              <mainClass>${main.class}</mainClass>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <!-- имена как в lib/: у JavaFX есть jar-файлы с классификатором платформы -->
+              <classpathLayoutType>custom</classpathLayoutType>
+              <customClasspathLayout>$${artifact.artifactId}-$${artifact.version}$${dashClassifier?}.$${artifact.extension}</customClasspathLayout>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <id>copy-libs</id>
+            <phase>package</phase>
+            <goals><goal>copy-dependencies</goal></goals>
+            <configuration>
+              <outputDirectory>${app.dir}/lib</outputDirectory>
+              <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- mvn javafx:run запускает приложение из исходников -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>${main.class}</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!--
+      Встроенная Java урезается до модулей, которые реально нужны (список получен jdeps):
+      java.desktop — JavaFX; java.net.http — запросы; java.xml.crypto, java.security.jgss — xmlsec и wss4j;
+      java.naming, java.smartcardio — Калкан; java.sql — Jackson; jdk.unsupported — JavaFX и Калкан.
+      Без отладочной информации, справки и заголовков, со сжатием: вместо ~150 МБ получается ~40 МБ.
+    -->
+    <profile>
+      <id>dist</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>clean-dist</id>
+                <phase>prepare-package</phase>
+                <goals><goal>run</goal></goals>
+                <configuration>
+                  <target><delete dir="${project.build.directory}/dist" quiet="true"/></target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <!-- mvn -Pdist package: портативная папка с GoNets.exe и своей Java внутри, и zip-архив с ней -->
+              <execution>
+                <id>jpackage</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>jpackage</executable>
+                  <arguments>
+                    <argument>--type</argument><argument>app-image</argument>
+                    <argument>--name</argument><argument>GoNets</argument>
+                    <argument>--app-version</argument><argument>${project.version}</argument>
+                    <argument>--vendor</argument><argument>GoNets</argument>
+                    <argument>--input</argument><argument>${app.dir}</argument>
+                    <argument>--main-jar</argument><argument>gonets.jar</argument>
+                    <argument>--main-class</argument><argument>${main.class}</argument>
+                    <argument>--icon</argument><argument>${project.basedir}/build/icon.ico</argument>
+                    <argument>--java-options</argument><argument>-Dfile.encoding=UTF-8</argument>
+                    <!-- SerialGC: для настольного окна быстрее старт и заметно меньше памяти и потоков, чем у G1 -->
+                    <argument>--java-options</argument><argument>-XX:+UseSerialGC</argument>
+                    <argument>--java-options</argument><argument>-XX:-UsePerfData</argument>
+                    <argument>--java-options</argument><argument>-Xss1m</argument>
+                    <argument>--java-options</argument><argument>-Dprism.lcdtext=false</argument>
+                    <argument>--add-modules</argument><argument>${jlink.modules}</argument>
+                    <argument>--jlink-options</argument><argument>${jlink.options}</argument>
+                    <argument>--dest</argument><argument>${project.build.directory}/dist</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>trim-runtime</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>powershell.exe</executable>
+                  <arguments>
+                    <argument>-NoProfile</argument>
+                    <argument>-Command</argument>
+                    <argument>$r = '${project.build.directory}/dist/GoNets/runtime'; Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$r/legal", "$r/lib/jvm.lib", "$r/lib/jawt.lib", "$r/lib/classlist", "$r/lib/jrt-fs.jar"</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>zip</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>powershell.exe</executable>
+                  <arguments>
+                    <argument>-NoProfile</argument>
+                    <argument>-Command</argument>
+                    <argument>Add-Type -AssemblyName System.IO.Compression.FileSystem; $z = '${project.build.directory}/dist/GoNets-${project.version}-portable.zip'; Remove-Item -Force -ErrorAction SilentlyContinue $z; [IO.Compression.ZipFile]::CreateFromDirectory('${project.build.directory}/dist/GoNets', $z, [IO.Compression.CompressionLevel]::Optimal, $true)</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      mvn -Pinstaller package: установщик target/installer/GoNets-<версия>.exe.
+      Ставится для текущего пользователя (%LOCALAPPDATA%\Programs\GoNets) без прав администратора, с выбором папки,
+      ярлыками в меню «Пуск» и на рабочем столе; удаляется через «Параметры → Приложения».
+      Нужен WiX Toolset 5 в PATH: dotnet tool install -g wix и расширения WixToolset.UI.wixext, WixToolset.Util.wixext.
+      upgrade-uuid не менять: по нему новая версия заменяет старую при установке поверх.
+    -->
+    <profile>
+      <id>installer</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>clean-installer</id>
+                <phase>prepare-package</phase>
+                <goals><goal>run</goal></goals>
+                <configuration>
+                  <target><delete dir="${project.build.directory}/installer" quiet="true"/></target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jpackage-exe</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>jpackage</executable>
+                  <arguments>
+                    <argument>--type</argument><argument>exe</argument>
+                    <argument>--name</argument><argument>GoNets</argument>
+                    <argument>--app-version</argument><argument>${project.version}</argument>
+                    <argument>--vendor</argument><argument>GoNets</argument>
+                    <!-- только латиница: установщик собирается в кодовой странице 1252, кириллица в ней даёт ошибку WiX 311 -->
+                    <argument>--description</argument><argument>GoNets HTTP client</argument>
+                    <argument>--input</argument><argument>${app.dir}</argument>
+                    <argument>--main-jar</argument><argument>gonets.jar</argument>
+                    <argument>--main-class</argument><argument>${main.class}</argument>
+                    <argument>--icon</argument><argument>${project.basedir}/build/icon.ico</argument>
+                    <argument>--java-options</argument><argument>-Dfile.encoding=UTF-8</argument>
+                    <!-- SerialGC: для настольного окна быстрее старт и заметно меньше памяти и потоков, чем у G1 -->
+                    <argument>--java-options</argument><argument>-XX:+UseSerialGC</argument>
+                    <argument>--java-options</argument><argument>-XX:-UsePerfData</argument>
+                    <argument>--java-options</argument><argument>-Xss1m</argument>
+                    <argument>--java-options</argument><argument>-Dprism.lcdtext=false</argument>
+                    <argument>--add-modules</argument><argument>${jlink.modules}</argument>
+                    <argument>--jlink-options</argument><argument>${jlink.options}</argument>
+                    <argument>--win-per-user-install</argument>
+                    <argument>--install-dir</argument><argument>Programs/GoNets</argument>
+                    <argument>--win-dir-chooser</argument>
+                    <argument>--win-menu</argument>
+                    <argument>--win-menu-group</argument><argument>GoNets</argument>
+                    <argument>--win-shortcut</argument>
+                    <argument>--win-shortcut-prompt</argument>
+                    <argument>--win-upgrade-uuid</argument><argument>3f6c2a1e-8d4b-4c7a-9e21-5b0d7f4a6c13</argument>
+                    <argument>--dest</argument><argument>${project.build.directory}/installer</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      mvn -Pdist-mac package (на Mac): target/dist/GoNets.app и GoNets-<версия>-mac.zip. Без подписи Apple: первый запуск — правый щелчок → «Открыть».
+    -->
+    <profile>
+      <id>dist-mac</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>clean-dist</id>
+                <phase>prepare-package</phase>
+                <goals><goal>run</goal></goals>
+                <configuration>
+                  <target><delete dir="${project.build.directory}/dist" quiet="true"/></target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jpackage</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>jpackage</executable>
+                  <arguments>
+                    <argument>--type</argument><argument>app-image</argument>
+                    <argument>--name</argument><argument>GoNets</argument>
+                    <argument>--app-version</argument><argument>${project.version}</argument>
+                    <argument>--vendor</argument><argument>GoNets</argument>
+                    <argument>--input</argument><argument>${app.dir}</argument>
+                    <argument>--main-jar</argument><argument>gonets.jar</argument>
+                    <argument>--main-class</argument><argument>${main.class}</argument>
+                    <argument>--icon</argument><argument>${project.basedir}/build/icon.icns</argument>
+                    <argument>--mac-package-name</argument><argument>GoNets</argument>
+                    <argument>--java-options</argument><argument>-Dfile.encoding=UTF-8</argument>
+                    <argument>--java-options</argument><argument>-XX:+UseSerialGC</argument>
+                    <argument>--java-options</argument><argument>-XX:-UsePerfData</argument>
+                    <argument>--java-options</argument><argument>-Xss1m</argument>
+                    <argument>--java-options</argument><argument>-Dprism.lcdtext=false</argument>
+                    <argument>--add-modules</argument><argument>${jlink.modules}</argument>
+                    <argument>--jlink-options</argument><argument>${jlink.options}</argument>
+                    <argument>--dest</argument><argument>${project.build.directory}/dist</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>archive</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>ditto</executable>
+                  <workingDirectory>${project.build.directory}/dist</workingDirectory>
+                  <arguments>
+                    <argument>-c</argument><argument>-k</argument><argument>--sequesterRsrc</argument><argument>--keepParent</argument>
+                    <argument>GoNets.app</argument><argument>GoNets-${project.version}-mac.zip</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+      mvn -Pdist-linux package (на Linux): target/dist/GoNets/ и GoNets-<версия>-linux.tar.gz
+    -->
+    <profile>
+      <id>dist-linux</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>clean-dist</id>
+                <phase>prepare-package</phase>
+                <goals><goal>run</goal></goals>
+                <configuration>
+                  <target><delete dir="${project.build.directory}/dist" quiet="true"/></target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jpackage</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>jpackage</executable>
+                  <arguments>
+                    <argument>--type</argument><argument>app-image</argument>
+                    <argument>--name</argument><argument>GoNets</argument>
+                    <argument>--app-version</argument><argument>${project.version}</argument>
+                    <argument>--vendor</argument><argument>GoNets</argument>
+                    <argument>--input</argument><argument>${app.dir}</argument>
+                    <argument>--main-jar</argument><argument>gonets.jar</argument>
+                    <argument>--main-class</argument><argument>${main.class}</argument>
+                    <argument>--icon</argument><argument>${project.basedir}/build/icon.png</argument>
+                    <argument>--java-options</argument><argument>-Dfile.encoding=UTF-8</argument>
+                    <argument>--java-options</argument><argument>-XX:+UseSerialGC</argument>
+                    <argument>--java-options</argument><argument>-XX:-UsePerfData</argument>
+                    <argument>--java-options</argument><argument>-Xss1m</argument>
+                    <argument>--java-options</argument><argument>-Dprism.lcdtext=false</argument>
+                    <argument>--add-modules</argument><argument>${jlink.modules}</argument>
+                    <argument>--jlink-options</argument><argument>${jlink.options}</argument>
+                    <argument>--dest</argument><argument>${project.build.directory}/dist</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>archive</id>
+                <phase>package</phase>
+                <goals><goal>exec</goal></goals>
+                <configuration>
+                  <executable>tar</executable>
+                  <workingDirectory>${project.build.directory}/dist</workingDirectory>
+                  <arguments>
+                    <argument>czf</argument><argument>GoNets-${project.version}-linux.tar.gz</argument><argument>GoNets</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
