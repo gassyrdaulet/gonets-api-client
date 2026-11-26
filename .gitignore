@@ -1,0 +1,18 @@
+# Личные данные: сохранённые запросы, окружения, пароли и токены
+data.json
+data.*.json
+
+# Результаты сборки
+target/
+dist/
+node_modules/
+
+# Среда разработки
+.idea/
+*.iml
+.vscode/
+
+# Прочее
+*.log
+.DS_Store
+Thumbs.db

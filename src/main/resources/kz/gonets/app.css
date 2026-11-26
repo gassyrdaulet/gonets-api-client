@@ -1,0 +1,549 @@
+/* GoNets: чёрно-серая тема (те же цвета, что у прежней страницы в тёмном режиме) */
+.root {
+    c-bg: #0e0e0f;
+    c-panel: #161617;
+    c-line: #29292b;
+    c-fg: #e4e4e6;
+    c-muted: #8c8c91;
+    c-accent: #d9d9dd;
+    c-accent-fg: #111113;
+    c-ok: #4cc38a;
+    c-warn: #e6a23c;
+    c-err: #ff6b76;
+    c-code: #121213;
+    c-hover: #202022;
+    c-thumb: #3a3a3d;
+    c-thumb-hover: #5a5a5f;
+    /* остальные цвета темы: всё, что зависит от темы, задаётся здесь (светлая тема — в .root.light в конце файла) */
+    c-base: #1d1d1f;
+    c-fx-accent: #4a4a50;
+    c-selbar: #3a3a40;
+    c-selbar-nf: #2c2c30;
+    c-prompt: #7a7a80;
+    c-pressed: #29292c;
+    c-primary-hover: #ececf0;
+    c-folder: #9a9aa0;
+    c-highlight: #4a4a52;
+    c-box-border: #5a5a5f;
+    c-put: #6f9bd6;
+    c-patch: #8a4fd6;
+    c-mark: rgba(255, 205, 40, 0.45);
+    c-warn-bg: rgba(230, 162, 60, 0.18);
+    c-code-sel: rgba(160, 160, 170, 0.35);
+    c-lineno: #5f5f64;
+    c-hl-key: #8ab4f8;
+    c-hl-str: #81c995;
+    c-hl-num: #f6b26b;
+    c-hl-bool: #c58af9;
+    c-hl-punct: #7d8590;
+    c-hl-var: #fdd663;
+    c-find: rgba(255, 205, 40, 0.38);
+    c-find-cur: rgba(255, 138, 0, 0.85);
+    c-shadow: rgba(0, 0, 0, 0.5);
+    c-loadtrack: rgba(217, 217, 221, 0.15);
+    c-tooltip: #2a2a2d;
+    c-frame: #333336;
+    c-bar-top: #1b1b1d;
+    c-bar-bottom: #141415;
+    c-btn-hover: #2a2a2d;
+
+    -fx-base: c-base;
+    -fx-background: c-bg;
+    -fx-control-inner-background: c-bg;
+    -fx-control-inner-background-alt: c-bg;
+    -fx-accent: c-fx-accent;
+    -fx-focus-color: c-accent;
+    -fx-faint-focus-color: transparent;
+    -fx-text-base-color: c-fg;
+    -fx-text-background-color: c-fg;
+    -fx-text-inner-color: c-fg;
+    -fx-mark-color: c-fg;
+    -fx-selection-bar: c-selbar;
+    -fx-selection-bar-non-focused: c-selbar-nf;
+    -fx-selection-bar-text: c-fg;
+    -fx-prompt-text-fill: c-prompt;
+    -fx-font-family: "Segoe UI", "System";
+    -fx-font-size: 13px;
+    -fx-background-color: c-bg;
+}
+
+.root-pane, .main, .dialog-root { -fx-background-color: c-bg; }
+/* нижний блок кнопок в модальных окнах */
+.dlg-footer {
+    -fx-background-color: c-panel;
+    -fx-border-color: c-line transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 10 16 10 16;
+}
+/* путь запроса над строкой названия */
+.crumbs { -fx-padding: 8 14 0 14; -fx-background-color: c-panel; }
+.crumb, .crumb-sep { -fx-text-fill: c-muted; -fx-font-size: 0.92em; }
+.crumb-last { -fx-text-fill: c-fg; -fx-font-size: 0.92em; -fx-font-weight: bold; }
+.label { -fx-text-fill: c-fg; }
+.muted, .hint { -fx-text-fill: c-muted; }
+.hint { -fx-font-size: 0.92em; }
+.mono, .mono .text, .code { -fx-font-family: "Consolas", "Cascadia Mono", "Courier New", monospace; }
+.b { -fx-font-weight: bold; }
+.s2 { -fx-text-fill: c-ok; }
+.s3 { -fx-text-fill: c-warn; }
+.s4, .s5, .serr { -fx-text-fill: c-err; }
+.status { -fx-font-weight: bold; -fx-font-family: "Consolas", monospace; }
+
+/* ---------- кнопки ---------- */
+.button, .toggle-button {
+    -fx-background-color: c-panel;
+    -fx-border-color: c-line;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: c-fg;
+    -fx-padding: 0.5em 1.1em;
+    -fx-cursor: hand;
+}
+.button:hover, .toggle-button:hover { -fx-background-color: c-hover; }
+.button:pressed { -fx-background-color: c-pressed; }
+.button:focused, .toggle-button:focused { -fx-border-color: c-accent; }
+.button:disabled { -fx-opacity: 0.55; }
+.button.primary {
+    -fx-background-color: c-accent;
+    -fx-border-color: c-accent;
+    -fx-text-fill: c-accent-fg;
+    -fx-font-weight: bold;
+}
+.button.primary:hover { -fx-background-color: c-primary-hover; }
+.button.small { -fx-padding: 0.3em 0.8em; -fx-font-size: 0.95em; }
+.button.dirty { -fx-border-color: c-warn; }
+.save-dot { -fx-text-fill: c-warn; -fx-font-size: 0.8em; }
+.button.flat, .toggle-button.flat {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0.25em 0.55em;
+}
+.button.flat:hover, .toggle-button.flat:hover { -fx-background-color: c-hover; }
+.toggle-button.flat:selected { -fx-background-color: c-accent; -fx-text-fill: c-accent-fg; }
+.button.icon-btn { -fx-padding: 0.35em 0.45em; }
+.button.del { -fx-text-fill: c-muted; }
+.button.del:hover { -fx-text-fill: c-err; }
+
+.icon-line {
+    -fx-fill: transparent;
+    -fx-stroke: c-muted;
+    -fx-stroke-width: 1.7;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+.icon-folder { -fx-fill: transparent; -fx-stroke: c-folder; -fx-stroke-width: 1.5; -fx-stroke-line-join: round; }
+.button:hover .icon-line { -fx-stroke: c-fg; }
+
+/* ---------- поля ввода ---------- */
+.text-field, .password-field, .text-area .content, .combo-box-base {
+    -fx-background-color: c-bg;
+    -fx-border-color: c-line;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+.text-field, .password-field { -fx-padding: 0.42em 0.7em; -fx-text-fill: c-fg; -fx-highlight-fill: c-highlight; -fx-highlight-text-fill: c-fg; }
+.text-field:focused, .password-field:focused, .combo-box-base:focused, .text-area:focused .content { -fx-border-color: c-accent; }
+.text-area { -fx-background-color: transparent; -fx-text-fill: c-fg; -fx-highlight-fill: c-highlight; }
+.text-area .content { -fx-padding: 8; }
+.text-area .scroll-pane { -fx-background-color: transparent; }
+.name-field { -fx-font-weight: bold; }
+.url-field { -fx-font-size: 1.0em; }
+
+.combo-box-base { -fx-padding: 0.12em 0.2em; }
+.combo-box-base:hover { -fx-background-color: c-hover; }
+.combo-box .list-cell { -fx-background-color: transparent; -fx-text-fill: c-fg; -fx-padding: 0.3em 0.5em; }
+.combo-box-popup .list-view { -fx-background-color: c-panel; -fx-border-color: c-line; }
+.combo-box-popup .list-view .list-cell { -fx-background-color: c-panel; -fx-padding: 0.35em 0.7em; }
+.combo-box-popup .list-view .list-cell:hover, .combo-box-popup .list-view .list-cell:selected { -fx-background-color: c-hover; }
+.combo-box .arrow { -fx-background-color: c-muted; }
+.method-box .list-cell { -fx-font-weight: bold; -fx-font-family: "Consolas", monospace; }
+.env-sel { -fx-background-color: c-panel; }
+
+/* галочка: крупный квадрат с заметной рамкой и жирным знаком */
+.check-box { -fx-text-fill: c-fg; -fx-label-padding: 0 0 0 8; }
+.check-box .box {
+    -fx-background-color: c-bg;
+    -fx-border-color: c-box-border;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 0.28em 0.3em 0.28em 0.3em;
+}
+.check-box:hover .box { -fx-border-color: c-accent; -fx-background-color: c-hover; }
+.check-box:focused .box { -fx-border-color: c-accent; }
+.check-box:selected .box { -fx-background-color: c-accent; -fx-border-color: c-accent; }
+.check-box:selected:hover .box { -fx-background-color: c-primary-hover; -fx-border-color: c-primary-hover; }
+.check-box .mark {
+    -fx-background-color: transparent; /* пустой квадрат, пока не отмечено */
+    -fx-shape: "M0.6 5.2 L2.2 3.6 L4.6 6.0 L9.8 0.4 L11.4 2.0 L4.6 9.2 Z";
+    -fx-scale-shape: true;
+    -fx-padding: 0.42em 0.5em 0.42em 0.5em;
+}
+.check-box:selected .mark { -fx-background-color: c-accent-fg; }
+.check-box:indeterminate .mark { -fx-background-color: transparent; }
+.check-box:disabled { -fx-opacity: 0.5; }
+
+/* ---------- методы ---------- */
+.m-GET { -fx-text-fill: c-ok; }
+.m-POST { -fx-text-fill: c-warn; }
+.m-PUT { -fx-text-fill: c-put; }
+.m-PATCH { -fx-text-fill: c-patch; }
+.m-DELETE { -fx-text-fill: c-err; }
+.method { -fx-font-family: "Consolas", monospace; -fx-font-weight: bold; -fx-font-size: 0.85em; -fx-min-width: 3.6em; }
+
+/* ---------- левая панель ---------- */
+.aside { -fx-background-color: c-panel; -fx-border-color: transparent c-line transparent transparent; }
+.aside-head { -fx-padding: 10 8 8 14; }
+.app-title { -fx-font-size: 1.15em; -fx-font-weight: bold; }
+.side-tabs { -fx-padding: 0 10 8 10; }
+.side-tabs .button.primary { -fx-font-weight: bold; }
+.side-search-box { -fx-padding: 0 10 8 10; }
+.side-search { -fx-padding: 0.4em 2.2em 0.4em 0.7em; }
+.search-clear { -fx-text-fill: c-muted; -fx-padding: 0.2em 0.6em; }
+.side-actions { -fx-padding: 8 10 8 10; -fx-border-color: c-line transparent transparent transparent; }
+
+.side-list { -fx-background-color: c-panel; -fx-background-insets: 0; -fx-padding: 0 6 10 6; -fx-border-width: 0; }
+.side-list:focused { -fx-background-color: c-panel; }
+.side-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: c-fg;
+    -fx-padding: 0.35em 0.5em;
+    -fx-background-radius: 6;
+}
+.side-list .list-cell.item:hover { -fx-background-color: c-hover; }
+.side-list .list-cell.item:selected { -fx-background-color: transparent; }
+.side-list .list-cell.item.active, .side-list .list-cell.item.sel {
+    -fx-background-color: c-hover;
+    -fx-border-color: c-line;
+    -fx-border-radius: 6;
+}
+.side-list .list-cell.folder { -fx-font-size: 1.07em; -fx-padding: 0.42em 0.5em; }
+.side-list .list-cell.folder .name { -fx-font-weight: bold; }
+.side-list .list-cell.sect-label { -fx-text-fill: c-warn; -fx-font-size: 0.8em; -fx-font-weight: bold; -fx-padding: 0.6em 0.7em 0.15em 0.7em; }
+.side-list .list-cell.empty-row { -fx-text-fill: c-muted; -fx-alignment: center; -fx-padding: 24 8 24 8; }
+.side-list .sub .label { -fx-text-fill: c-muted; -fx-font-size: 0.85em; }
+.side-list .mark { -fx-background-color: c-mark; -fx-background-radius: 2; }
+.side-list .cnt { -fx-text-fill: c-muted; -fx-font-size: 0.9em; }
+.side-list .dirty-dot { -fx-text-fill: c-warn; -fx-font-size: 0.8em; }
+.side-list .chev { -fx-min-width: 18; -fx-pref-width: 18; }
+.side-list .chev .icon-line { -fx-stroke-width: 2; }
+.side-list .act {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0.1em 0.3em;
+    -fx-opacity: 0;
+    -fx-text-fill: c-muted;
+}
+.side-list .list-cell:hover .act { -fx-opacity: 1; }
+.side-list .act:hover .icon-line { -fx-stroke: c-accent; }
+.side-list .act.x:hover { -fx-text-fill: c-err; }
+.side-list .act .icon-line { -fx-scale-x: 0.8; -fx-scale-y: 0.8; }
+.side-list .rename { -fx-padding: 0.15em 0.4em; -fx-border-color: c-accent; }
+.list-cell.drop-before { -fx-border-color: c-accent transparent transparent transparent; -fx-border-width: 2 0 0 0; }
+.list-cell.drop-after { -fx-border-color: transparent transparent c-accent transparent; -fx-border-width: 0 0 2 0; }
+.list-cell.drop-into { -fx-border-color: c-accent; -fx-border-width: 2; -fx-border-radius: 6; }
+.side-list.drop-end { -fx-border-color: transparent transparent c-accent transparent; -fx-border-width: 0 0 3 0; }
+
+/* ---------- верхние строки ---------- */
+.bar { -fx-background-color: c-panel; -fx-padding: 10 12 10 12; }
+.bar-top { -fx-padding: 10 12 0 12; }
+.dirty-badge {
+    -fx-background-color: c-warn-bg;
+    -fx-text-fill: c-warn;
+    -fx-background-radius: 16;
+    -fx-padding: 0.4em 1em;
+    -fx-font-size: 0.92em;
+    -fx-font-weight: bold;
+}
+
+/* ---------- вкладки и области ---------- */
+.req-res { -fx-background-color: c-bg; -fx-padding: 0; -fx-box-border: transparent; }
+.split-pane { -fx-background-color: transparent; -fx-padding: 0; }
+.split-pane > .split-pane-divider { -fx-background-color: c-line; -fx-padding: 0 2 0 2; -fx-opacity: 0.6; }
+.split-pane:vertical > .split-pane-divider { -fx-padding: 2 0 2 0; }
+.split-pane > .split-pane-divider:hover { -fx-background-color: c-accent; -fx-opacity: 1; }
+/* граница левой панели: за неё легко ухватиться (8 px), а рисуется тонкая линия */
+.main-split > .split-pane-divider { -fx-padding: 0 4 0 4; -fx-background-insets: 0 3.5 0 3.5; }
+.pane { -fx-background-color: c-bg; }
+.tabs {
+    -fx-min-height: 44; -fx-pref-height: 44; -fx-max-height: 44;
+    -fx-background-color: c-panel;
+    -fx-border-color: transparent transparent c-line transparent;
+    -fx-padding: 0 12 0 12;
+    -fx-spacing: 2;
+    -fx-alignment: center-left;
+}
+.tabs .tab {
+    -fx-min-height: 44; -fx-pref-height: 44; -fx-max-height: 44;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-text-fill: c-muted;
+    -fx-padding: 0 0.9em 0 0.9em;
+}
+.tabs .tab:hover { -fx-text-fill: c-fg; -fx-background-color: transparent; }
+.tabs .tab.active { -fx-text-fill: c-fg; -fx-border-color: transparent transparent c-accent transparent; }
+.tabs .count { -fx-text-fill: c-accent; -fx-font-size: 0.9em; }
+.meta { -fx-padding: 8 12 0 12; -fx-background-color: c-bg; }
+.meta .label { -fx-font-family: "Consolas", monospace; -fx-font-size: 0.92em; }
+.meta .muted { -fx-text-fill: c-muted; }
+.content { -fx-padding: 12; -fx-background-color: c-bg; }
+.content > .empty, .empty { -fx-text-fill: c-muted; }
+.row { -fx-padding: 0 0 2 0; }
+.kv { -fx-padding: 0 0 4 0; }
+.ed-status { -fx-text-fill: c-muted; -fx-font-family: "Consolas", monospace; -fx-font-size: 0.85em; }
+
+.scroll-pane, .plain-scroll, .dlg-scroll { -fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+.scroll-pane > .corner { -fx-background-color: transparent; }
+
+/* ---------- полосы прокрутки ---------- */
+.scroll-bar { -fx-background-color: transparent; -fx-padding: 1; }
+.scroll-bar .thumb { -fx-background-color: c-thumb; -fx-background-radius: 6; -fx-background-insets: 1; }
+.scroll-bar .thumb:hover { -fx-background-color: c-thumb-hover; }
+/* слишком короткий ползунок заменяется «таблеткой» минимальной длины (ScrollThumb) */
+.scroll-bar .thumb.fat, .scroll-bar .thumb.fat:hover { -fx-background-color: transparent; }
+.scroll-bar .thumb-pill { -fx-background-color: c-thumb; -fx-background-radius: 6; -fx-background-insets: 1; }
+.scroll-bar .thumb.fat:hover .thumb-pill, .scroll-bar .thumb.fat:pressed .thumb-pill { -fx-background-color: c-thumb-hover; }
+/* пока полосы прокрутки нет, справа остаётся место под неё: ширина содержимого не прыгает */
+.side-list.no-vbar { -fx-padding: 0 16 10 6; }
+.scroll-pane.no-vbar { -fx-padding: 0 10 0 0; }
+.code-scroll.no-vbar { -fx-padding: 0 10 0 0; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button { -fx-padding: 0; -fx-background-color: transparent; }
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow { -fx-padding: 0; -fx-shape: none; }
+.scroll-bar:vertical { -fx-pref-width: 10; }
+.scroll-bar:horizontal { -fx-pref-height: 10; }
+.virtualized-scroll-pane { -fx-background-color: transparent; }
+
+/* ---------- редактор кода (RichTextFX) ---------- */
+.code-box {
+    -fx-background-color: c-code;
+    -fx-border-color: c-line;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 1;
+}
+.code {
+    -fx-background-color: c-code;
+    -fx-font-size: 1.0em;
+    -fx-padding: 6 4 6 4;
+}
+.code .text { -fx-fill: c-fg; }
+.code .caret { -fx-stroke: c-fg; }
+.code .selection { -fx-fill: c-code-sel; }
+.code .lineno {
+    -fx-background-color: c-code;
+    -fx-text-fill: c-lineno;
+    -fx-padding: 0 10 0 4;
+    -fx-font-family: "Consolas", monospace;
+}
+.code.err-text .text { -fx-fill: c-err; }
+.placeholder { -fx-text-fill: c-lineno; -fx-font-family: "Consolas", monospace; -fx-padding: 6 10 6 10; }
+.hl-note {
+    -fx-text-fill: c-muted;
+    -fx-font-size: 0.85em;
+    -fx-background-color: c-code;
+    -fx-border-color: c-line;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8 2 8;
+    -fx-translate-x: -16;
+    -fx-translate-y: -8;
+}
+
+.code .text.json-k { -fx-fill: c-hl-key; }
+.code .text.json-s { -fx-fill: c-hl-str; }
+.code .text.json-n { -fx-fill: c-hl-num; }
+.code .text.json-b { -fx-fill: c-hl-bool; }
+.code .text.json-null { -fx-fill: c-hl-bool; -fx-font-style: italic; }
+.code .text.x-p { -fx-fill: c-hl-punct; }
+.code .text.x-t { -fx-fill: c-hl-key; }
+.code .text.x-a { -fx-fill: c-hl-num; }
+.code .text.x-s { -fx-fill: c-hl-str; }
+.code .text.x-c { -fx-fill: c-hl-punct; -fx-font-style: italic; }
+.code .text.x-v { -fx-fill: c-hl-var; -fx-font-weight: bold; }
+.code .text.hdr-k { -fx-fill: c-hl-key; }
+.code .text.find { -rtfx-background-color: c-find; }
+.code .text.find-cur { -rtfx-background-color: c-find-cur; -fx-fill: #111111; }
+
+/* ---------- поиск, индикатор, сообщения ---------- */
+.findbar {
+    -fx-background-color: c-panel;
+    -fx-border-color: c-line;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 5 6 5 6;
+    -fx-effect: dropshadow(gaussian, c-shadow, 18, 0.2, 0, 4);
+    -fx-translate-x: -18;
+    -fx-translate-y: 10;
+}
+.find-count { -fx-text-fill: c-muted; -fx-font-family: "Consolas", monospace; -fx-font-size: 0.9em; }
+.loadbar { -fx-pref-height: 3; -fx-max-height: 3; -fx-min-height: 3; -fx-padding: 0; }
+.loadbar > .track { -fx-background-color: c-loadtrack; -fx-background-insets: 0; -fx-background-radius: 0; }
+.loadbar > .bar { -fx-background-color: c-accent; -fx-background-insets: 0; -fx-background-radius: 2; -fx-padding: 1.5; }
+.toast {
+    -fx-background-color: c-fg;
+    -fx-text-fill: c-bg;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, c-shadow, 12, 0.2, 0, 2);
+}
+.tooltip { -fx-background-color: c-tooltip; -fx-text-fill: c-fg; -fx-background-radius: 4; -fx-font-size: 12px; }
+
+/* ---------- окна ---------- */
+.dlg-head { -fx-background-color: c-hover; -fx-border-color: transparent transparent c-line transparent; -fx-padding: 8 10 8 16; }
+.dlg-title { -fx-font-size: 1.15em; -fx-font-weight: bold; }
+.dlg-x { -fx-text-fill: c-muted; -fx-font-size: 1.1em; }
+.dlg-text .content { -fx-background-color: c-code; }
+.sect-head { -fx-padding: 12 0 0 0; }
+.sect-title { -fx-font-weight: bold; -fx-font-size: 1.05em; }
+.help-btn {
+    -fx-background-radius: 11;
+    -fx-border-radius: 11;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-padding: 0;
+    -fx-text-fill: c-muted;
+    -fx-font-weight: bold;
+    -fx-font-size: 0.9em;
+}
+.help-btn:hover, .help-btn.on { -fx-background-color: c-accent; -fx-border-color: c-accent; -fx-text-fill: c-accent-fg; }
+.help-body {
+    -fx-background-color: c-code;
+    -fx-border-color: c-line;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 10 8 10;
+    -fx-line-spacing: 2;
+}
+.dialog-pane { -fx-background-color: c-panel; }
+.dialog-pane > .content .label { -fx-text-fill: c-fg; }
+.dialog-pane > .button-bar > .container { -fx-background-color: c-panel; }
+
+/* подсказки в пустых полях: modena задаёт цвет прямо у .text-input, поэтому переопределяем там же */
+.text-input { -fx-prompt-text-fill: c-prompt; }
+
+/* замок «скрывать при экспорте» у переменной окружения */
+.secret-toggle { -fx-padding: 0.3em 0.45em; }
+.secret-toggle .icon-line { -fx-stroke: c-lineno; }
+.secret-toggle:hover .icon-line { -fx-stroke: c-fg; }
+.toggle-button.flat.secret-toggle:selected { -fx-background-color: c-warn-bg; -fx-text-fill: c-warn; }
+.secret-toggle:selected .icon-line { -fx-stroke: c-warn; }
+
+/* ---------- своя шапка окна ---------- */
+.win-root { -fx-background-color: c-bg; }
+.win-frame { -fx-border-color: c-frame; -fx-border-width: 1; -fx-background-color: c-bg; }
+.win-root.maximized .win-frame { -fx-border-width: 0; }
+.win-bar {
+    -fx-background-color: linear-gradient(to bottom, c-bar-top, c-bar-bottom);
+    -fx-border-color: transparent transparent c-line transparent;
+    -fx-min-height: 38; -fx-pref-height: 38; -fx-max-height: 38;
+}
+.win-title { -fx-font-weight: bold; -fx-font-size: 1.05em; -fx-text-fill: c-fg; }
+.win-subtitle { -fx-text-fill: c-muted; -fx-font-size: 0.95em; }
+.win-dirty { -fx-text-fill: c-warn; -fx-font-size: 0.8em; }
+.win-icon { -fx-fill: transparent; -fx-stroke: c-muted; -fx-stroke-width: 1.2; -fx-stroke-line-cap: round; }
+.win-btn {
+    -fx-background-color: transparent; -fx-border-color: transparent; -fx-background-radius: 0; -fx-border-radius: 0;
+    -fx-min-width: 46; -fx-pref-width: 46; -fx-min-height: 38; -fx-pref-height: 38; -fx-padding: 0;
+}
+.win-btn:hover { -fx-background-color: c-btn-hover; }
+.win-btn:hover .win-icon { -fx-stroke: c-fg; }
+.win-btn.win-close:hover { -fx-background-color: #c42b1c; }
+.win-btn.win-close:hover .win-icon { -fx-stroke: white; }
+.win-tool { -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0.3em 0.45em; }
+.win-tool:hover { -fx-background-color: c-btn-hover; }
+.side-tabs { -fx-padding: 10 10 8 10; }
+.dialog-pane > .header-panel { -fx-background-color: c-hover; -fx-border-color: transparent transparent c-line transparent; }
+.dialog-pane > .header-panel .label { -fx-text-fill: c-fg; -fx-font-weight: bold; -fx-font-size: 1.05em; }
+.dialog-pane > .content { -fx-padding: 12 16 4 16; }
+
+/* шапка модальных окон: та же, что у главного, чуть ниже, только крестик */
+.win-bar.win-bar-dialog { -fx-min-height: 34; -fx-pref-height: 34; -fx-max-height: 34; }
+.win-bar-dialog .win-btn { -fx-min-height: 34; -fx-pref-height: 34; -fx-min-width: 42; -fx-pref-width: 42; }
+.win-bar-dialog .win-title { -fx-font-size: 1.0em; }
+.win-dialog .win-frame { -fx-border-color: c-frame; -fx-effect: dropshadow(gaussian, c-shadow, 20, 0.2, 0, 6); }
+.ask-body { -fx-background-color: c-panel; }
+.ask-message { -fx-font-weight: bold; -fx-font-size: 1.05em; -fx-text-fill: c-fg; }
+
+/* ---------- светлая тема: те же переменные, другие значения ---------- */
+.root.light {
+    c-bg: #e6e7e9;
+    c-panel: #f6f6f7;
+    c-line: #b4b6bc;
+    c-fg: #131315;
+    c-muted: #55565b;
+    c-accent: #2a2a2d;
+    c-accent-fg: #ffffff;
+    c-ok: #14804a;
+    c-warn: #b26a00;
+    c-err: #c62d3a;
+    c-code: #fbfbfc;
+    c-hover: #d9dbdf;
+    c-thumb: #aeb0b6;
+    c-thumb-hover: #85878d;
+    c-base: #eeeef0;
+    c-fx-accent: #c8c8cc;
+    c-selbar: #c3c7d0;
+    c-selbar-nf: #d3d5da;
+    c-prompt: #8e8e93;
+    c-pressed: #c8cacf;
+    c-primary-hover: #3d3d41;
+    c-folder: #55565b;
+    c-highlight: #c8d6ee;
+    c-box-border: #85878d;
+    c-put: #2f6bb3;
+    c-patch: #7a3fc6;
+    c-mark: rgba(255, 196, 0, 0.45);
+    c-warn-bg: rgba(178, 106, 0, 0.12);
+    c-code-sel: rgba(60, 110, 200, 0.22);
+    c-lineno: #888a90;
+    c-hl-key: #1a5fb4;
+    c-hl-str: #237a3c;
+    c-hl-num: #b35900;
+    c-hl-bool: #8a3fd1;
+    c-hl-punct: #7a7a80;
+    c-hl-var: #a15c00;
+    c-find: rgba(255, 196, 0, 0.40);
+    c-find-cur: rgba(255, 138, 0, 0.75);
+    c-shadow: rgba(0, 0, 0, 0.18);
+    c-loadtrack: rgba(42, 42, 45, 0.12);
+    c-tooltip: #2a2a2d;
+    c-frame: #9c9ea4;
+    c-bar-top: #f3f3f4;
+    c-bar-bottom: #e4e5e8;
+    c-btn-hover: #d2d4d8;
+}
+/* светлая тема: поля ввода белые, с заметным контуром, чтобы не сливались с серым фоном */
+.root.light .text-field, .root.light .password-field, .root.light .text-area .content, .root.light .combo-box-base {
+    -fx-background-color: #ffffff;
+    -fx-border-color: c-box-border;
+}
+.root.light .text-field:focused, .root.light .password-field:focused, .root.light .combo-box-base:focused, .root.light .text-area:focused .content {
+    -fx-border-color: c-accent;
+}
+.root.light .split-pane > .split-pane-divider { -fx-opacity: 1; }
+.root.light .tooltip { -fx-text-fill: #f2f2f4; }
+.root.light .toast { -fx-background-color: #2a2a2d; -fx-text-fill: #f2f2f4; }
+.root.light .button.primary:hover { -fx-background-color: c-primary-hover; }
+
+/* горячие клавиши в настройках */
+.kbd {
+    -fx-background-color: c-hover;
+    -fx-border-color: c-line;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 1 6 1 6;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 0.9em;
+}
+
+.about-title { -fx-font-size: 1.9em; -fx-font-weight: bold; }
+
+/* кнопки внизу левой панели: не обрезаются на узкой панели */
+.side-actions .button { -fx-padding: 0.32em 0.45em; -fx-font-size: 0.92em; }
